@@ -7,7 +7,7 @@ function getGridColumn(block) {
 }
 
 function getBlockElement(row, col) {
-    for(block of ALL_BLOCKS){
+    for(block of BOARD_BLOCKS){
         if(getGridRow(block) === row &&
         getGridColumn(block) === col){
             return block;
@@ -30,24 +30,38 @@ function getBlockColor(block) {
 
 function createShape(shape) {
     const currentShape = SHAPES.find(x => x.shape === shape);
-    const shapeBlocks = [getBlockElement(currentShape.firstBlock[0], currentShape.firstBlock[1]), 
-        getBlockElement(currentShape.secondBlock[0], currentShape.secondBlock[1]), 
-        getBlockElement(currentShape.thirdBlock[0], currentShape.thirdBlock[1]),
-        getBlockElement(currentShape.fourthBlock[0], currentShape.fourthBlock[1])];
-    for(block of shapeBlocks){
-        changeBlock(block, currentShape.color);
-        block.classList.add("controlledBlock");
+    const shapeElement = document.createElement("div");
+    shapeElement.classList.add("currentShape");
+    let colPlacement
+    if(currentShape.colSpan < 3) {
+        colPlacement = "5";
     }
-}
-
-function getControlledBlocks() {
-    let controlledBlocks = [];
-    for(block of ALL_BLOCKS) {
-        if(block.classList.contains("controlledBlock")) {
-            controlledBlocks.push(block);
+    else {
+        colPlacement = "4";
+    }
+    shapeElement.style = `grid: ${"1fr ".repeat(currentShape.rowSpan)} / ${"1fr ".repeat(currentShape.colSpan)};
+        grid-area: 1/ ${colPlacement}/ span ${currentShape.rowSpan}/ span ${currentShape.colSpan}`;
+    for(let i = 1; i <= (currentShape.colSpan); i++) {
+        for(let j = 1; j <= currentShape.rowSpan; j++) {
+            const gridItem = document.createElement("div");
+            gridItem.classList.add("gridItem", `${currentShape.color}`);
+            gridItem.style.gridColumnStart = i;
+            gridItem.style.gridRowStart = j;
+            shapeElement.appendChild(gridItem);
         }
     }
-    return controlledBlocks;
+    
+    GAMEBOARD.appendChild(shapeElement);
+}
+
+function getBackgroundBlocks(currentShape) {
+    let backgroundBlocks = [];
+    for(block of currentShape.childNodes) {
+        const blockRow = Number(currentShape.style.gridRowStart) + (Number(block.style.gridRowStart) - 1);
+        const blockColumn = Number(currentShape.style.gridColumnStart) + (Number(block.style.gridColumnStart) - 1);
+        backgroundBlocks.push(getBlockElement(blockRow, blockColumn));
+    }
+    return backgroundBlocks;
 }
 
 function getSortedRows(blocks) {
@@ -80,198 +94,156 @@ function getSortedColumnsLeft(blocks) {
     return sortedCols;
 }
 
-function moveBlockDown(block) {
-    const currentColor = getBlockColor(block);
-    block.classList.remove(currentColor);
-    block.classList.remove("controlledBlock");
-    block = getBlockElement(getGridRow(block) + 1, getGridColumn(block));
-    changeBlock(block, currentColor);
-    block.classList.add("controlledBlock");
-}
-
-function moveControlledBlocksDown() {
-    const controlledBlocks = getControlledBlocks();
-    const sortedRows = getSortedRows(controlledBlocks);
-    for(row of sortedRows) {
-        for(let i = 1; i <= GAME_COLUMNS; i++) {
-            let checkedBlock = getBlockElement(row, i);
-            if(checkedBlock.classList.contains("controlledBlock")){
-                moveBlockDown(checkedBlock);
-            }
-        }
-    }
-}
-
-function moveBlockRight(block) {
-    const currentColor = getBlockColor(block);
-    block.classList.remove(currentColor);
-    block.classList.remove("controlledBlock");
-    block = getBlockElement(getGridRow(block), getGridColumn(block) + 1);
-    changeBlock(block, currentColor);
-    block.classList.add("controlledBlock");
-}
-
-function moveControlledBlocksRight() {
-    const controlledBlocks = getControlledBlocks();
-    const sortedCols = getSortedColumnsRight(controlledBlocks);
-    for(col of sortedCols) {
-        for(let i = 1; i <= GAME_COLUMNS; i++) {
-            let checkedBlock = getBlockElement(i, col);
-            if(checkedBlock.classList.contains("controlledBlock")){
-                moveBlockRight(checkedBlock);
-            }
-        }
-    }
-}
-
-function moveBlockLeft(block) {
-    const currentColor = getBlockColor(block);
-    block.classList.remove(currentColor);
-    block.classList.remove("controlledBlock");
-    block = getBlockElement(getGridRow(block), getGridColumn(block) - 1);
-    changeBlock(block, currentColor);
-    block.classList.add("controlledBlock");
-}
-
-function moveControlledBlocksLeft() {
-    const controlledBlocks = getControlledBlocks();
-    const sortedCols = getSortedColumnsLeft(controlledBlocks);
-    for(col of sortedCols) {
-        for(let i = 1; i <= GAME_COLUMNS; i++) {
-            let checkedBlock = getBlockElement(i, col);
-            if(checkedBlock.classList.contains("controlledBlock")){
-                moveBlockLeft(checkedBlock);
-            }
-        }
-    }
-}
-
-function checkCollisionDown(block) {
-    if(getGridRow(block) === GAME_ROWS) {
-        return true;
+function checkCollisionDown(block, currentShape) {
+    if(block.classList.contains("emptyBlock")) {
+        return false;
     }
     else {
-        const lowerBlock = getBlockElement(getGridRow(block) + 1, getGridColumn(block));
-        if(lowerBlock.classList.contains("staticBlock")) {
+        const blockRow = Number(currentShape.style.gridRowStart) + (Number(block.style.gridRowStart) - 1);
+        const blockColumn = Number(currentShape.style.gridColumnStart) + (Number(block.style.gridColumnStart) - 1);
+        if(blockRow === GAME_ROWS) {
             return true;
         }
         else {
-            return false;
-        }
-    }
+            const lowerBlock = getBlockElement(blockRow + 1, blockColumn);
+            return lowerBlock.classList.contains("staticBlock");
+        }    
+    }   
 }
 
-function checkAllCollisionDown() {
-    const controlledBlocks = getControlledBlocks();
-    for(block of controlledBlocks) {
-        if(checkCollisionDown(block)) {
-            return true;
+function checkAllCollisionDown(currentShape) {
+    for(block of currentShape.childNodes) {
+        if(!block.classList.contains("emptyBlock")) {
+            if(checkCollisionDown(block, currentShape)) {
+                return true;
+            }
+            else {
+                continue;
+            }
         }
-        else {continue};
     }
     return false;
 }
 
-function checkCollisionRight(block) {
-    if(getGridColumn(block) === GAME_COLUMNS) {
-        return true;
+function checkCollisionRight(block, currentShape) {
+    if(block.classList.contains("emptyBlock")) {
+        return false;
     }
     else {
-        const rightBlock = getBlockElement(getGridRow(block), getGridColumn(block) + 1);
-        if(rightBlock.classList.contains("staticBlock")) {
+        const blockRow = Number(currentShape.style.gridRowStart) + (Number(block.style.gridRowStart) - 1);
+        const blockColumn = Number(currentShape.style.gridColumnStart) + (Number(block.style.gridColumnStart) - 1);
+        if(blockColumn === GAME_COLUMNS) {
             return true;
         }
         else {
-            return false;
-        }
+            const rightBlock = getBlockElement(blockRow, blockColumn + 1);
+            return rightBlock.classList.contains("staticBlock");
+        }    
     }
 }
 
-function checkAllCollisionRight() {
-    const controlledBlocks = getControlledBlocks();
-    for(block of controlledBlocks) {
-        if(checkCollisionRight(block)) {
-           return true; 
+function checkAllCollisionRight(currentShape) {
+    for(block of currentShape.childNodes) {
+        if(!block.classList.contains("emptyBlock")) {
+            if(checkCollisionRight(block, currentShape)) {
+                return true;
+            }
+            else {
+                continue;
+            }
         }
-        else {continue};
     }
     return false;
 }
 
-function checkCollisionLeft(block) {
-    if(getGridColumn(block) === 1) {
-        return true;
+function checkCollisionLeft(block, currentShape) {
+    if(block.classList.contains("emptyBlock")) {
+        return false;
     }
     else {
-        const leftBlock = getBlockElement(getGridRow(block), getGridColumn(block) - 1);
-        if(leftBlock.classList.contains("staticBlock")) {
+        const blockRow = Number(currentShape.style.gridRowStart) + (Number(block.style.gridRowStart) - 1);
+        const blockColumn = Number(currentShape.style.gridColumnStart) + (Number(block.style.gridColumnStart) - 1);
+        if(blockColumn === 1) {
             return true;
         }
         else {
-            return false;
-        }
+            const rightBlock = getBlockElement(blockRow, blockColumn - 1);
+            return rightBlock.classList.contains("staticBlock");
+        }    
     }
 }
 
-function checkAllCollisionLeft() {
-    const controlledBlocks = getControlledBlocks();
-    for(block of controlledBlocks) {
-        if(checkCollisionLeft(block)) {
-           return true; 
+function checkAllCollisionLeft(currentShape) {
+    for(block of currentShape.childNodes) {
+        if(!block.classList.contains("emptyBlock")) {
+            if(checkCollisionLeft(block, currentShape)) {
+                return true;
+            }
+            else {
+                continue;
+            }
         }
-        else {continue};
     }
     return false;
 }
 
-function makeStatic() {
-    const controlledBlocks = getControlledBlocks();
-    for(x of controlledBlocks) {
-        x.classList.add("staticBlock");
-        x.classList.remove("controlledBlock");
+function makeStatic(currentShape) {
+    const backgroundBlocks = getBackgroundBlocks(currentShape);
+    let blockColor;
+    for(color of Object.values(BLOCK_COLORS)) {
+        if(currentShape.childNodes[0].classList.contains(color)) {
+            console.log(color);
+            blockColor = color;
+        }
     }
+    for(x of backgroundBlocks) {
+        x.classList.add("staticBlock", blockColor);
+    }
+    currentShape.remove();
     createShape("O");
 }
 
-document.addEventListener("keypress", function(e) {
-    if(e.repeat) return;
+function moveDown(currentShape) {
+    if(checkAllCollisionDown(currentShape)) {
+        makeStatic(currentShape);
+    }
+    else {
+        currentShape.style.gridRowStart++;
+    }
+}
+
+function addControls(){
+    document.addEventListener("keydown", function() {
+        const currentShape = document.querySelector(".currentShape");
     switch(event.key) {
         case "d":  
         case "ArrowRight":
-            if(!checkAllCollisionRight()){
-            moveControlledBlocksRight();
+            if(!checkAllCollisionRight(currentShape)) {
+            currentShape.style.gridColumnStart++;
             }
             break;
         case "s":
         case "ArrowDown":
-            
-            if(checkAllCollisionDown()) {
-                makeStatic();
-            }
-            else {
-                moveControlledBlocksDown();
-            }
+            moveDown(currentShape);
             break;
         case "a":
         case "ArrowLeft":
-            if(!checkAllCollisionLeft()){
-            moveControlledBlocksLeft();
+            if(!checkAllCollisionLeft(currentShape)) {
+            currentShape.style.gridColumnStart--;
             }
             break;
     }
 })
+};
 
 function update() {
-    if(checkAllCollisionDown()) {
-        makeStatic();
-    }
-    else {
-        moveControlledBlocksDown();
-    }
+    const shape = document.querySelector(".currentShape");
+    moveDown(shape);
 }
 
 const mainInterval = setInterval(update, 1000);
 function main() {
     createShape("O");
+    addControls();
 }
 main();

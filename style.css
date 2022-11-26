@@ -27,3 +27,10 @@
     border: 4px solid;
     border-color: rgb(233, 114, 114) rgb(163, 1, 1) rgb(131, 2, 2) rgb(228, 9, 9) ;
 }
+
+.currentShape {
+    display: grid;
+    width: fit-content;
+    height: auto;
+    grid-gap: 1px;
+}

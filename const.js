@@ -9,10 +9,8 @@ const BLOCK_COLORS = {
 const SHAPES = [
     {
         shape: "O",
-        firstBlock: [1, 5],
-        secondBlock: [1, 6],
-        thirdBlock: [2, 5],
-        fourthBlock: [2, 6],
+        rowSpan: 2,
+        colSpan: 2,
         color: BLOCK_COLORS.red,
     }
 ]
@@ -34,4 +32,4 @@ function createBoard() {
     }
 }
 createBoard();
-const ALL_BLOCKS = document.querySelectorAll(".gridItem");
+const BOARD_BLOCKS = document.querySelectorAll(".gridItem");
