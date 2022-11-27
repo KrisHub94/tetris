@@ -28,8 +28,32 @@ function getBlockColor(block) {
 
 //Function to create new piece
 
+function getShape(shape) {
+    for (item of SHAPES) {
+        if(item = shape) {
+            return item[0];
+        }
+    }
+}
+
+function checkEmptyBlock(row, column, currentShape) {
+    if(currentShape.hasOwnProperty("emptyBlocks")) {
+        for(item of currentShape.emptyBlocks) {
+            if(item[0] === row && item[1] === column) {
+                return true;
+            }
+            else {
+                continue;
+            }
+        }
+    }
+    else {
+        return false;
+    }
+}
+
 function createShape(shape) {
-    const currentShape = SHAPES.find(x => x.shape === shape);
+    const currentShape = getShape(shape);
     const shapeElement = document.createElement("div");
     shapeElement.classList.add("currentShape");
     let colPlacement
@@ -47,6 +71,9 @@ function createShape(shape) {
             gridItem.classList.add("gridItem", `${currentShape.color}`);
             gridItem.style.gridColumnStart = i;
             gridItem.style.gridRowStart = j;
+            if(checkEmptyBlock(j, i, currentShape)) {
+                gridItem.classList.add("emptyBlock");
+            }
             shapeElement.appendChild(gridItem);
         }
     }
@@ -59,6 +86,9 @@ function createShape(shape) {
 function getBackgroundBlocks(currentShape) {
     let backgroundBlocks = [];
     for(block of currentShape.childNodes) {
+        if(block.classList.contains("emptyBlock")) {
+            continue;
+        }
         const blockRow = Number(currentShape.style.gridRowStart) + (Number(block.style.gridRowStart) - 1);
         const blockColumn = Number(currentShape.style.gridColumnStart) + (Number(block.style.gridColumnStart) - 1);
         backgroundBlocks.push(getBlockElement(blockRow, blockColumn));
@@ -180,7 +210,7 @@ function makeStatic(currentShape) {
         x.classList.add("staticBlock", blockColor);
     }
     currentShape.remove();
-    createShape("O");
+    createShape(SHAPE_S);
 }
 
 //Function to check if the piece is in the top center of the board (used after piece is placed)
@@ -302,7 +332,8 @@ function update() {
 
 const mainInterval = setInterval(update, 1000);
 function main() {
-    createShape("O");
+    console.log(SHAPES[1][0].emptyBlocks[0][0]);
+    createShape(SHAPE_S);
     addControls();
 }
 main();

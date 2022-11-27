@@ -21,11 +21,22 @@
     filter: brightness(80%);
 }
 
+.emptyBlock {
+    opacity: 0;
+} 
+
 .redBlock {
     box-sizing: border-box;
     background-color: red;
     border: 4px solid;
     border-color: rgb(233, 114, 114) rgb(163, 1, 1) rgb(131, 2, 2) rgb(228, 9, 9) ;
+}
+
+.blueBlock {
+    box-sizing: border-box;
+    background-color: aqua;
+    border: 4px solid;
+    border-color: rgb(185, 236, 236) rgb(27, 168, 168) rgb(14, 131, 131) rgb(4, 221, 221);
 }
 
 .currentShape {
