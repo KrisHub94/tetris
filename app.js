@@ -15,10 +15,6 @@ function getBlockElement(row, col) {
     }
 }
 
-function changeBlock(block, color) {
-    block.classList.add(color);
-}
-
 function getBlockColor(block) {
     for(color of Object.values(BLOCK_COLORS)){
         if(block.classList.contains(color)){
@@ -72,26 +68,6 @@ function getSortedRows(blocks) {
     rows.sort(function(a, b){return b - a});
     sortedRows = new Set(rows);
     return sortedRows;
-}
-
-function getSortedColumnsRight(blocks) {
-    let cols = [];
-    for(block of blocks) {
-        cols.push(getGridColumn(block));
-    }
-    cols.sort(function(a, b){return b - a});
-    sortedCols = new Set(cols);
-    return sortedCols;
-}
-
-function getSortedColumnsLeft(blocks) {
-    let cols = [];
-    for(block of blocks) {
-        cols.push(getGridColumn(block));
-    }
-    cols.sort(function(a, b){return a - b});
-    sortedCols = new Set(cols);
-    return sortedCols;
 }
 
 function checkCollisionDown(block, currentShape) {
@@ -192,7 +168,6 @@ function makeStatic(currentShape) {
     let blockColor;
     for(color of Object.values(BLOCK_COLORS)) {
         if(currentShape.childNodes[0].classList.contains(color)) {
-            console.log(color);
             blockColor = color;
         }
     }
@@ -203,9 +178,48 @@ function makeStatic(currentShape) {
     createShape("O");
 }
 
+function checkLoseCondition(currentShape) {
+    let lowestColumn;
+    let highestColumn;
+    switch(currentShape.style.gridColumnEnd) {
+        case "span 2":
+            lowestColumn = 4;
+            highestColumn = 6;
+            break;
+    }
+    if(Number(currentShape.style.gridRowStart) <= 1 &&
+    Number(currentShape.style.gridColumnStart) <= highestColumn &&
+    Number(currentShape.style.gridColumnStart) >= lowestColumn) {
+        alert("YOU LOST");
+    }
+}
+
+function checkRows() {
+    for(let i = GAME_ROWS; i >= 1; i--) {
+        let isRowFull = true;
+        for(let j = 1; j <= GAME_COLUMNS; j++) {
+            const checkedBlock = getBlockElement(i, j);
+            if(checkedBlock.classList.contains("staticBlock")) {
+                continue;
+            }
+            else {
+                isRowFull = false;
+            }
+        }
+        if(isRowFull) {
+            alert(`ROW ${i} IS FULL`);
+        }
+        else {
+            continue;
+        }
+    }
+}
+
 function moveDown(currentShape) {
     if(checkAllCollisionDown(currentShape)) {
+        checkLoseCondition(currentShape);
         makeStatic(currentShape);
+        checkRows();
     }
     else {
         currentShape.style.gridRowStart++;
