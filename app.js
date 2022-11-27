@@ -1,3 +1,5 @@
+//Functions to get block element/coordinates
+
 function getGridRow(block) {
     return Number(getComputedStyle(block).gridRowStart);
 }
@@ -23,6 +25,8 @@ function getBlockColor(block) {
         
     }
 }
+
+//Function to create new piece
 
 function createShape(shape) {
     const currentShape = SHAPES.find(x => x.shape === shape);
@@ -50,6 +54,8 @@ function createShape(shape) {
     GAMEBOARD.appendChild(shapeElement);
 }
 
+//Function to get an array with blocks of board that are in the same position as the piece to turn into background blocks(used in makestatic)
+
 function getBackgroundBlocks(currentShape) {
     let backgroundBlocks = [];
     for(block of currentShape.childNodes) {
@@ -69,6 +75,8 @@ function getSortedRows(blocks) {
     sortedRows = new Set(rows);
     return sortedRows;
 }
+
+//Functions for collision checks
 
 function checkCollisionDown(block, currentShape) {
     if(block.classList.contains("emptyBlock")) {
@@ -163,20 +171,19 @@ function checkAllCollisionLeft(currentShape) {
     return false;
 }
 
+//function to turn current piece into static background blocks
+
 function makeStatic(currentShape) {
     const backgroundBlocks = getBackgroundBlocks(currentShape);
-    let blockColor;
-    for(color of Object.values(BLOCK_COLORS)) {
-        if(currentShape.childNodes[0].classList.contains(color)) {
-            blockColor = color;
-        }
-    }
+    let blockColor = getBlockColor(currentShape.childNodes[0]);
     for(x of backgroundBlocks) {
         x.classList.add("staticBlock", blockColor);
     }
     currentShape.remove();
     createShape("O");
 }
+
+//Function to check if the piece is in the top center of the board (used after piece is placed)
 
 function checkLoseCondition(currentShape) {
     let lowestColumn;
@@ -194,6 +201,38 @@ function checkLoseCondition(currentShape) {
     }
 }
 
+//Functions to remove an entire row and check if a row is full of static blocks TODO: add function to realign remaining rows
+
+function removeRow(number) {
+    for(let i = 1; i <= GAME_COLUMNS; i++) {
+        const currentBlock = getBlockElement(number, i);
+        currentBlock.classList.remove(getBlockColor(currentBlock));
+        currentBlock.classList.remove("staticBlock");
+    }
+}
+
+function moveStaticBlockDown(block) {
+    const lowerBlock = getBlockElement(getGridRow(block) + 1, getGridColumn(block));
+    const blockColor = getBlockColor(block);
+    block.classList.remove("staticBlock", blockColor);
+    lowerBlock.classList.add("staticBlock", blockColor);
+}
+
+function moveRowDown(row) {
+    for(let j = 1; j <= GAME_COLUMNS; j++) {
+        const currentBlock = getBlockElement(row, j);
+        if(currentBlock.classList.contains("staticBlock")) {
+            moveStaticBlockDown(currentBlock);
+        }
+    }
+}
+
+function realignRows(lowestRow) {
+    for(let i = lowestRow; i >= 1; i--) {
+        moveRowDown(i);
+    }
+}
+
 function checkRows() {
     for(let i = GAME_ROWS; i >= 1; i--) {
         let isRowFull = true;
@@ -207,13 +246,17 @@ function checkRows() {
             }
         }
         if(isRowFull) {
-            alert(`ROW ${i} IS FULL`);
+            removeRow(i);
+            realignRows(i - 1);
+            checkRows();
         }
         else {
             continue;
         }
     }
 }
+
+//Functions for movement and input event listener
 
 function moveDown(currentShape) {
     if(checkAllCollisionDown(currentShape)) {
@@ -249,6 +292,8 @@ function addControls(){
     }
 })
 };
+
+//Update function which moves piece down and main function
 
 function update() {
     const shape = document.querySelector(".currentShape");
