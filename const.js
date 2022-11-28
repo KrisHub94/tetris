@@ -6,6 +6,9 @@ const BLOCK_COLORS = {
     red: "redBlock",
     blue: "blueBlock",
     green: "greenBlock",
+    purple: "purpleBlock",
+    orange: "orangeBlock",
+    yellow: "yellowBlock",
 };
 
 const SHAPE_O = [
@@ -23,7 +26,7 @@ const SHAPE_S = [
         shape: "S0",
         rowSpan: 2,
         colSpan: 3,
-        color: BLOCK_COLORS.blue,
+        color: BLOCK_COLORS.yellow,
         emptyBlocks: [[1, 1],[2, 3]],
         turnRowColumn: [1, 0],
     },
@@ -31,7 +34,7 @@ const SHAPE_S = [
         shape: "S1",
         rowSpan: 3,
         colSpan: 2,
-        color: BLOCK_COLORS.blue,
+        color: BLOCK_COLORS.yellow,
         emptyBlocks: [[1, 2],[3, 1]],
         turnRowColumn: [-1, 1],
     },
@@ -39,7 +42,7 @@ const SHAPE_S = [
         shape: "S2",
         rowSpan: 2,
         colSpan: 3,
-        color: BLOCK_COLORS.blue,
+        color: BLOCK_COLORS.yellow,
         emptyBlocks: [[1, 1],[2, 3]],
         turnRowColumn: [0, -1],
     },
@@ -47,7 +50,7 @@ const SHAPE_S = [
         shape: "S3",
         rowSpan: 3,
         colSpan: 2,
-        color: BLOCK_COLORS.blue,
+        color: BLOCK_COLORS.yellow,
         emptyBlocks: [[1, 2],[3, 1]],
         turnRowColumn: [0, 0],
     },
@@ -88,7 +91,42 @@ const SHAPE_Z = [
     },
 ]
 
-const SHAPES = [SHAPE_O, SHAPE_S, SHAPE_Z];
+const SHAPE_I = [
+    {
+        shape: "I0",
+        rowSpan: 1,
+        colSpan: 4,
+        color: BLOCK_COLORS.blue,
+        emptyBlocks: [],
+        turnRowColumn: [1, 0],
+    },
+    {
+        shape: "I1",
+        rowSpan: 4,
+        colSpan: 1,
+        color: BLOCK_COLORS.blue,
+        emptyBlocks: [],
+        turnRowColumn: [-1, 1],
+    },
+    {
+        shape: "I2",
+        rowSpan: 1,
+        colSpan: 4,
+        color: BLOCK_COLORS.blue,
+        emptyBlocks: [],
+        turnRowColumn: [0, -1],
+    },
+    {
+        shape: "I3",
+        rowSpan: 4,
+        colSpan: 1,
+        color: BLOCK_COLORS.blue,
+        emptyBlocks: [],
+        turnRowColumn: [0, 0],
+    },
+]
+
+const SHAPES = [SHAPE_O, SHAPE_S, SHAPE_Z, SHAPE_I];
 
 //creating board in this file bc its above app.js in html
 //by declaring ALL_BLOCKS with queryselector here i can use it in function

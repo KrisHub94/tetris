@@ -46,6 +46,27 @@
     border-color: rgb(192, 240, 192) rgb(93, 180, 93) rgb(54, 90, 54) rgb(136, 221, 136);
 }
 
+.yellowBlock {
+    box-sizing: border-box;
+    background-color: yellow;
+    border: 4px solid;
+    border-color: rgb(240, 240, 131) rgb(190, 190, 8) rgb(138, 138, 5) rgb(223, 223, 14);
+}
+
+.purpleBlock {
+    box-sizing: border-box;
+    background-color: purple;
+    border: 4px solid;
+    border-color: rgb(238, 53, 238) rgb(90, 2, 90) rgb(61, 2, 61) rgb(139, 8, 139);
+}
+
+.orangeBlock {
+    box-sizing: border-box;
+    background-color: orange;
+    border: 4px solid;
+    border-color: rgb(241, 184, 78) rgb(168, 111, 5) rgb(109, 73, 6) rgb(218, 144, 7);
+}
+
 .currentShape {
     display: grid;
     width: fit-content;

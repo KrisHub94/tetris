@@ -124,9 +124,30 @@ function createShape(currentShape) {
     GAMEBOARD.appendChild(shapeElement);
 }
 
+function getRandomQueue() {
+    let length = SHAPES.length;
+    let indices = [];
+    for(let i = 0; i < length; i++)  {
+        indices.push(i);
+    }
+    const shuffledIndices = indices.sort(function () {
+        return Math.random() - 0.5;
+    })  
+    return shuffledIndices;
+}
+
 function spawnRandomShape() {
-    const randomNumber = Math.floor(Math.random() * 3);
+    const randomNumber = Math.floor(Math.random() * SHAPES.length);
     createShape(SHAPES[randomNumber][0]);
+}
+
+function spawnNextShape() {
+    createShape(SHAPES[currentQueue[0]][0]);
+    currentQueue.splice(0, 1);
+    if(currentQueue.length === 0) {
+        currentQueue = nextQueue;
+        nextQueue = getRandomQueue();
+    }
 }
 
 function getNextShape(currentShape) {
@@ -139,6 +160,10 @@ function getNextShape(currentShape) {
         case "Z1": return SHAPE_Z[2];
         case "Z2": return SHAPE_Z[3];
         case "Z3": return SHAPE_Z[0];
+        case "I0": return SHAPE_I[1];
+        case "I1": return SHAPE_I[2];
+        case "I2": return SHAPE_I[3];
+        case "I3": return SHAPE_I[0];
     }
 }
 
@@ -327,7 +352,7 @@ function makeStatic(currentShape) {
         x.classList.add("staticBlock", blockColor);
     }
     currentShape.remove();
-    spawnRandomShape();
+    spawnNextShape();
 }
 
 //Functions to remove an entire row and check if a row is full of static blocks TODO: add function to realign remaining rows
@@ -431,8 +456,10 @@ function update() {
 }
 
 const mainInterval = setInterval(update, 1000);
+let currentQueue = getRandomQueue();
+let nextQueue = getRandomQueue();
 function main() {
-    createShape(SHAPE_Z[0]);
+    spawnNextShape();
     addControls();
 }
 main();
