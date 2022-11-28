@@ -28,7 +28,7 @@ function getBlockColor(block) {
 
 //Function to create new piece
 
-function getShape(shape) {
+function getFirstShape(shape) {
     for (item of SHAPES) {
         if(item = shape) {
             return item[0];
@@ -95,8 +95,7 @@ function checkLoseCondition(currentShape, colPlacement) {
     }
 }
 
-function createShape(shape) {
-    const currentShape = getShape(shape);
+function createShape(currentShape) {
     const shapeElement = document.createElement("div");
     shapeElement.classList.add(currentShape.shape);
     shapeElement.classList.add("currentShape");
@@ -125,30 +124,79 @@ function createShape(shape) {
     GAMEBOARD.appendChild(shapeElement);
 }
 
-function getCurrentShape(currentShape) {
+function getNextShape(currentShape) {
     switch (currentShape.classList[0]) {
-        case "S0": return SHAPE_S[0];
-        case "S1": return SHAPE_S[1];
-        case "S2": return SHAPE_S[2];
-        case "S3": return SHAPE_S[3];
+        case "S0": return SHAPE_S[1];
+        case "S1": return SHAPE_S[2];
+        case "S2": return SHAPE_S[3];
+        case "S3": return SHAPE_S[0];
     }
 }
 
-function checkTurncollision(blocks) {
-    for(block of blocks) {
-        if(getBlockElement(block[0], block[1]).classList.contains("staticBlock")) {
-
-        };
+function checkTurnCollision(shape, row, column) {
+    const endRow = row + (shape.rowSpan - 1);
+    const endColumn = column + (shape.colSpan - 1);
+    const rowModifier = row - 1;
+    const colModifier = column - 1;
+    let checkedBlocks = [];
+    for(let i = row; i <= endRow; i++) {
+        for(let j = column; j <= endColumn; j++) {
+            if(compareWithEmptyBlocks(i - rowModifier, j - colModifier, shape)) {
+                continue;
+            }
+            else {
+                const block = getBlockElement(i, j);
+                checkedBlocks.push(block);
+            }
+        }
     }
+    for(block of checkedBlocks) {
+        if(block.classList.contains("staticBlock")) {
+            return true;
+        }
+        else {
+            continue;
+        }
+    }
+    return false;
 }
 
 function turnShape(shape) {
-    if(currentShape.classList.contains("O")) {
+    if(shape.classList.contains("O")) {
         return;
     }
-    const currentShape = getCurrentShape(shape);
-
+    const nextShape = getNextShape(shape);
+    const currentRow = Number(shape.style.gridRowStart);
+    const currentColumn = Number(shape.style.gridColumnStart);
+    let nextRow;
+    if(currentRow === 1) {
+        nextRow = 1;
+    }
+    else {
+        nextRow = currentRow + nextShape.turnRowColumn[0];
+    }
+    let nextColumn;
+    if(currentColumn === 1) {
+        nextColumn = 1;
+    }
     
+    else if((currentColumn + nextShape.turnRowColumn[1] + (nextShape.colSpan - 1)) > GAME_COLUMNS) {
+        nextColumn = (GAME_COLUMNS - nextShape.colSpan) + 1;
+    }
+    else {
+        nextColumn = currentColumn + nextShape.turnRowColumn[1];
+    }
+    let turnIndex = Number(shape.classList[0][1] + 1);
+    if(checkTurnCollision(nextShape, nextRow, nextColumn)) {
+        return;
+    }
+    else {
+        shape.remove();
+        createShape(nextShape);
+        const currentShape = document.querySelector(".currentShape");
+        currentShape.style.gridRowStart = nextRow;
+        currentShape.style.gridColumnStart = nextColumn;
+    }
 }
 
 //Functions for collision checks
@@ -270,7 +318,7 @@ function makeStatic(currentShape) {
         x.classList.add("staticBlock", blockColor);
     }
     currentShape.remove();
-    createShape(SHAPE_S);
+    createShape(getFirstShape(SHAPE_S));
 }
 
 //Functions to remove an entire row and check if a row is full of static blocks TODO: add function to realign remaining rows
@@ -375,7 +423,7 @@ function update() {
 
 const mainInterval = setInterval(update, 1000);
 function main() {
-    createShape(SHAPE_S);
+    createShape(getFirstShape(SHAPE_S));
     addControls();
 }
 main();
