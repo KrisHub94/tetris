@@ -5,6 +5,7 @@ const GAME_COLUMNS = 10;
 const BLOCK_COLORS = {
     red: "redBlock",
     blue: "blueBlock",
+    green: "greenBlock",
 };
 
 const SHAPE_O = [
@@ -13,6 +14,7 @@ const SHAPE_O = [
         rowSpan: 2,
         colSpan: 2,
         color: BLOCK_COLORS.red,
+        emptyBlocks: [],
     }
 ]
 
@@ -51,7 +53,42 @@ const SHAPE_S = [
     },
 ]
 
-const SHAPES = [SHAPE_O, SHAPE_S];
+const SHAPE_Z = [
+    {
+        shape: "Z0",
+        rowSpan: 2,
+        colSpan: 3,
+        color: BLOCK_COLORS.green,
+        emptyBlocks: [[1, 3],[2, 1]],
+        turnRowColumn: [1, 0],
+    },
+    {
+        shape: "Z1",
+        rowSpan: 3,
+        colSpan: 2,
+        color: BLOCK_COLORS.green,
+        emptyBlocks: [[1, 1],[3, 2]],
+        turnRowColumn: [-1, 1],
+    },
+    {
+        shape: "Z2",
+        rowSpan: 2,
+        colSpan: 3,
+        color: BLOCK_COLORS.green,
+        emptyBlocks: [[1, 3],[2, 1]],
+        turnRowColumn: [0, -1],
+    },
+    {
+        shape: "Z3",
+        rowSpan: 3,
+        colSpan: 2,
+        color: BLOCK_COLORS.green,
+        emptyBlocks: [[1, 1],[3, 2]],
+        turnRowColumn: [0, 0],
+    },
+]
+
+const SHAPES = [SHAPE_O, SHAPE_S, SHAPE_Z];
 
 //creating board in this file bc its above app.js in html
 //by declaring ALL_BLOCKS with queryselector here i can use it in function

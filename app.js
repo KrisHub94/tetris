@@ -124,12 +124,21 @@ function createShape(currentShape) {
     GAMEBOARD.appendChild(shapeElement);
 }
 
+function spawnRandomShape() {
+    const randomNumber = Math.floor(Math.random() * 3);
+    createShape(SHAPES[randomNumber][0]);
+}
+
 function getNextShape(currentShape) {
     switch (currentShape.classList[0]) {
         case "S0": return SHAPE_S[1];
         case "S1": return SHAPE_S[2];
         case "S2": return SHAPE_S[3];
         case "S3": return SHAPE_S[0];
+        case "Z0": return SHAPE_Z[1];
+        case "Z1": return SHAPE_Z[2];
+        case "Z2": return SHAPE_Z[3];
+        case "Z3": return SHAPE_Z[0];
     }
 }
 
@@ -318,7 +327,7 @@ function makeStatic(currentShape) {
         x.classList.add("staticBlock", blockColor);
     }
     currentShape.remove();
-    createShape(getFirstShape(SHAPE_S));
+    spawnRandomShape();
 }
 
 //Functions to remove an entire row and check if a row is full of static blocks TODO: add function to realign remaining rows
@@ -423,7 +432,7 @@ function update() {
 
 const mainInterval = setInterval(update, 1000);
 function main() {
-    createShape(getFirstShape(SHAPE_S));
+    createShape(SHAPE_Z[0]);
     addControls();
 }
 main();
