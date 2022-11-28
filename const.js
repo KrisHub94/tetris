@@ -18,12 +18,39 @@ const SHAPE_O = [
 
 const SHAPE_S = [
     {
-        shape: "S",
+        shape: "S0",
         rowSpan: 2,
         colSpan: 3,
         color: BLOCK_COLORS.blue,
         emptyBlocks: [[1, 1],[2, 3]],
-    }
+        turnRowColumn: [-1, 1],
+        turnCheckBlocks: [[-1, 1], [1, 2]],
+        turnCheckBlocksAlt:[[2, 1]],
+    },
+    {
+        shape: "S1",
+        rowSpan: 3,
+        colSpan: 2,
+        color: BLOCK_COLORS.blue,
+        emptyBlocks: [[1, 1],[2, 3]],
+        turnRowColumn: [-1, 1],
+    },
+    {
+        shape: "S2",
+        rowSpan: 2,
+        colSpan: 3,
+        color: BLOCK_COLORS.blue,
+        emptyBlocks: [[1, 1],[2, 3]],
+        turnRowColumn: [0, 0],
+    },
+    {
+        shape: "S3",
+        rowSpan: 2,
+        colSpan: 3,
+        color: BLOCK_COLORS.blue,
+        emptyBlocks: [[1, 1],[2, 3]],
+        turnRowColumn: [-1, 1],
+    },
 ]
 
 const SHAPES = [SHAPE_O, SHAPE_S];

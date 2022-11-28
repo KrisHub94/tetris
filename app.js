@@ -36,6 +36,8 @@ function getShape(shape) {
     }
 }
 
+//Function to check if a block needs to be empty upon creation
+
 function checkEmptyBlock(row, column, currentShape) {
     if(currentShape.hasOwnProperty("emptyBlocks")) {
         for(item of currentShape.emptyBlocks) {
@@ -52,19 +54,62 @@ function checkEmptyBlock(row, column, currentShape) {
     }
 }
 
+function compareWithEmptyBlocks(row, column, currentShape) {
+    for(item of currentShape.emptyBlocks) {
+        if(item[0] === row && item[1] === column) {
+            return true;
+        }
+        else {
+            continue;
+        }
+    }
+    return false;
+}
+
+//Function to check if there are static blocks in the places where new piece would spawn
+
+function checkLoseCondition(currentShape, colPlacement) {
+    const rowEnd = currentShape.rowSpan;
+    const colStart = colPlacement;
+    const colEnd = colStart + (currentShape.colSpan - 1);
+    let checkedBlocks = []
+    const modifier = colPlacement - 1;
+    for(let i = 1; i <= rowEnd; i++) {
+        for(let j = colPlacement; j <= colEnd; j++) {
+            if(compareWithEmptyBlocks(i, j - modifier, currentShape)) {
+                continue;
+            }
+            else {
+                const block = getBlockElement(i, j);
+                checkedBlocks.push(block);
+            }
+        }
+    }
+    for(block of checkedBlocks) {
+        if(block.classList.contains("staticBlock")) {
+            alert("YOU LOSE");
+        }
+        else {
+            continue;
+        }
+    }
+}
+
 function createShape(shape) {
     const currentShape = getShape(shape);
     const shapeElement = document.createElement("div");
+    shapeElement.classList.add(currentShape.shape);
     shapeElement.classList.add("currentShape");
-    let colPlacement
+    let colPlacement;
     if(currentShape.colSpan < 3) {
         colPlacement = "5";
     }
     else {
         colPlacement = "4";
     }
+    checkLoseCondition(currentShape, Number(colPlacement));
     shapeElement.style = `grid: ${"1fr ".repeat(currentShape.rowSpan)} / ${"1fr ".repeat(currentShape.colSpan)};
-        grid-area: 1/ ${colPlacement}/ span ${currentShape.rowSpan}/ span ${currentShape.colSpan}`;
+    grid-area: 1/ ${colPlacement}/ span ${currentShape.rowSpan}/ span ${currentShape.colSpan}`;
     for(let i = 1; i <= (currentShape.colSpan); i++) {
         for(let j = 1; j <= currentShape.rowSpan; j++) {
             const gridItem = document.createElement("div");
@@ -77,33 +122,33 @@ function createShape(shape) {
             shapeElement.appendChild(gridItem);
         }
     }
-    
     GAMEBOARD.appendChild(shapeElement);
 }
 
-//Function to get an array with blocks of board that are in the same position as the piece to turn into background blocks(used in makestatic)
-
-function getBackgroundBlocks(currentShape) {
-    let backgroundBlocks = [];
-    for(block of currentShape.childNodes) {
-        if(block.classList.contains("emptyBlock")) {
-            continue;
-        }
-        const blockRow = Number(currentShape.style.gridRowStart) + (Number(block.style.gridRowStart) - 1);
-        const blockColumn = Number(currentShape.style.gridColumnStart) + (Number(block.style.gridColumnStart) - 1);
-        backgroundBlocks.push(getBlockElement(blockRow, blockColumn));
+function getCurrentShape(currentShape) {
+    switch (currentShape.classList[0]) {
+        case "S0": return SHAPE_S[0];
+        case "S1": return SHAPE_S[1];
+        case "S2": return SHAPE_S[2];
+        case "S3": return SHAPE_S[3];
     }
-    return backgroundBlocks;
 }
 
-function getSortedRows(blocks) {
-    let rows = [];
+function checkTurncollision(blocks) {
     for(block of blocks) {
-        rows.push(getGridRow(block));
+        if(getBlockElement(block[0], block[1]).classList.contains("staticBlock")) {
+
+        };
     }
-    rows.sort(function(a, b){return b - a});
-    sortedRows = new Set(rows);
-    return sortedRows;
+}
+
+function turnShape(shape) {
+    if(currentShape.classList.contains("O")) {
+        return;
+    }
+    const currentShape = getCurrentShape(shape);
+
+    
 }
 
 //Functions for collision checks
@@ -201,6 +246,21 @@ function checkAllCollisionLeft(currentShape) {
     return false;
 }
 
+//Function to get an array with blocks of board that are in the same position as the piece to turn into background blocks(used in makestatic)
+
+function getBackgroundBlocks(currentShape) {
+    let backgroundBlocks = [];
+    for(block of currentShape.childNodes) {
+        if(block.classList.contains("emptyBlock")) {
+            continue;
+        }
+        const blockRow = Number(currentShape.style.gridRowStart) + (Number(block.style.gridRowStart) - 1);
+        const blockColumn = Number(currentShape.style.gridColumnStart) + (Number(block.style.gridColumnStart) - 1);
+        backgroundBlocks.push(getBlockElement(blockRow, blockColumn));
+    }
+    return backgroundBlocks;
+}
+
 //function to turn current piece into static background blocks
 
 function makeStatic(currentShape) {
@@ -211,24 +271,6 @@ function makeStatic(currentShape) {
     }
     currentShape.remove();
     createShape(SHAPE_S);
-}
-
-//Function to check if the piece is in the top center of the board (used after piece is placed)
-
-function checkLoseCondition(currentShape) {
-    let lowestColumn;
-    let highestColumn;
-    switch(currentShape.style.gridColumnEnd) {
-        case "span 2":
-            lowestColumn = 4;
-            highestColumn = 6;
-            break;
-    }
-    if(Number(currentShape.style.gridRowStart) <= 1 &&
-    Number(currentShape.style.gridColumnStart) <= highestColumn &&
-    Number(currentShape.style.gridColumnStart) >= lowestColumn) {
-        alert("YOU LOST");
-    }
 }
 
 //Functions to remove an entire row and check if a row is full of static blocks TODO: add function to realign remaining rows
@@ -290,7 +332,6 @@ function checkRows() {
 
 function moveDown(currentShape) {
     if(checkAllCollisionDown(currentShape)) {
-        checkLoseCondition(currentShape);
         makeStatic(currentShape);
         checkRows();
     }
@@ -319,6 +360,8 @@ function addControls(){
             currentShape.style.gridColumnStart--;
             }
             break;
+        case " ": turnShape(currentShape);
+            break;
     }
 })
 };
@@ -332,7 +375,6 @@ function update() {
 
 const mainInterval = setInterval(update, 1000);
 function main() {
-    console.log(SHAPES[1][0].emptyBlocks[0][0]);
     createShape(SHAPE_S);
     addControls();
 }
