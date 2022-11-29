@@ -2,6 +2,12 @@ const GAMEBOARD = document.querySelector("#game");
 const GAME_ROWS = 20;
 const GAME_COLUMNS = 10;
 
+const TURN_SOUND = "./sounds/turn-sound.mp3";
+const ROW_CLEAR_SOUND = "./sounds/row-clear-sound.mp3";
+const GAME_OVER_SOUND = "./sounds/you-lose-sound.mp3";
+const MAKE_STATIC_SOUND = "./sounds/make-static-sound.mp3";
+const NEXT_LEVEL_SOUND = "./sounds/next-level-sound.mp3";
+
 const BLOCK_COLORS = {
     red: "redBlock",
     blue: "blueBlock",
@@ -9,6 +15,7 @@ const BLOCK_COLORS = {
     purple: "purpleBlock",
     orange: "orangeBlock",
     yellow: "yellowBlock",
+    darkBlue: "darkBlueBlock",
 };
 
 const SHAPE_O = [
@@ -126,7 +133,112 @@ const SHAPE_I = [
     },
 ]
 
-const SHAPES = [SHAPE_O, SHAPE_S, SHAPE_Z, SHAPE_I];
+const SHAPE_T = [
+    {
+        shape: "T0",
+        rowSpan: 2,
+        colSpan: 3,
+        color: BLOCK_COLORS.purple,
+        emptyBlocks: [[1, 1], [1, 3]],
+        turnRowColumn: [1, 0],
+    },
+    {
+        shape: "T1",
+        rowSpan: 3,
+        colSpan: 2,
+        color: BLOCK_COLORS.purple,
+        emptyBlocks: [[1, 1], [3, 1]],
+        turnRowColumn: [-1, 1],
+    },
+    {
+        shape: "T2",
+        rowSpan: 2,
+        colSpan: 3,
+        color: BLOCK_COLORS.purple,
+        emptyBlocks: [[2, 1], [2, 3]],
+        turnRowColumn: [0, -1],
+    },
+    {
+        shape: "T3",
+        rowSpan: 3,
+        colSpan: 2,
+        color: BLOCK_COLORS.purple,
+        emptyBlocks: [[1, 2], [3, 2]],
+        turnRowColumn: [0, 0],
+    },
+]
+
+const SHAPE_L = [
+    {
+        shape: "L0",
+        rowSpan: 2,
+        colSpan: 3,
+        color: BLOCK_COLORS.orange,
+        emptyBlocks: [[1, 1], [1, 2]],
+        turnRowColumn: [1, 0],
+    },
+    {
+        shape: "L1",
+        rowSpan: 3,
+        colSpan: 2,
+        color: BLOCK_COLORS.orange,
+        emptyBlocks: [[2, 1], [3, 1]],
+        turnRowColumn: [-1, 1],
+    },
+    {
+        shape: "L2",
+        rowSpan: 2,
+        colSpan: 3,
+        color: BLOCK_COLORS.orange,
+        emptyBlocks: [[2, 2], [2, 3]],
+        turnRowColumn: [0, -1],
+    },
+    {
+        shape: "L3",
+        rowSpan: 3,
+        colSpan: 2,
+        color: BLOCK_COLORS.orange,
+        emptyBlocks: [[1, 2], [2, 2]],
+        turnRowColumn: [0, 0],
+    },
+]
+
+const SHAPE_J = [
+    {
+        shape: "J0",
+        rowSpan: 2,
+        colSpan: 3,
+        color: BLOCK_COLORS.darkBlue,
+        emptyBlocks: [[1, 2], [1, 3]],
+        turnRowColumn: [1, 0],
+    },
+    {
+        shape: "J1",
+        rowSpan: 3,
+        colSpan: 2,
+        color: BLOCK_COLORS.darkBlue,
+        emptyBlocks: [[1, 1], [2, 1]],
+        turnRowColumn: [-1, 1],
+    },
+    {
+        shape: "J2",
+        rowSpan: 2,
+        colSpan: 3,
+        color: BLOCK_COLORS.darkBlue,
+        emptyBlocks: [[2, 1], [2, 2]],
+        turnRowColumn: [0, -1],
+    },
+    {
+        shape: "J3",
+        rowSpan: 3,
+        colSpan: 2,
+        color: BLOCK_COLORS.darkBlue,
+        emptyBlocks: [[2, 2], [3, 2]],
+        turnRowColumn: [0, 0],
+    },
+]
+
+const SHAPES = [SHAPE_O, SHAPE_S, SHAPE_Z, SHAPE_I, SHAPE_T, SHAPE_L, SHAPE_J];
 
 //creating board in this file bc its above app.js in html
 //by declaring ALL_BLOCKS with queryselector here i can use it in function

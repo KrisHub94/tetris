@@ -66,6 +66,11 @@ function compareWithEmptyBlocks(row, column, currentShape) {
     return false;
 }
 
+function playGameOverSound() {
+    const sound = new Audio(GAME_OVER_SOUND);
+    sound.play();
+}
+
 //Function to check if there are static blocks in the places where new piece would spawn
 
 function checkLoseCondition(currentShape, colPlacement) {
@@ -87,6 +92,7 @@ function checkLoseCondition(currentShape, colPlacement) {
     }
     for(block of checkedBlocks) {
         if(block.classList.contains("staticBlock")) {
+            playGameOverSound();
             alert("YOU LOSE");
         }
         else {
@@ -151,20 +157,23 @@ function spawnNextShape() {
 }
 
 function getNextShape(currentShape) {
-    switch (currentShape.classList[0]) {
-        case "S0": return SHAPE_S[1];
-        case "S1": return SHAPE_S[2];
-        case "S2": return SHAPE_S[3];
-        case "S3": return SHAPE_S[0];
-        case "Z0": return SHAPE_Z[1];
-        case "Z1": return SHAPE_Z[2];
-        case "Z2": return SHAPE_Z[3];
-        case "Z3": return SHAPE_Z[0];
-        case "I0": return SHAPE_I[1];
-        case "I1": return SHAPE_I[2];
-        case "I2": return SHAPE_I[3];
-        case "I3": return SHAPE_I[0];
+    const letter = currentShape.classList[0][0];
+    const nextNumber = (Number(currentShape.classList[0][1]) + 1) % 4;
+    switch (letter) {
+        case "S": return SHAPE_S[nextNumber];
+            break;
+        case "Z": return SHAPE_Z[nextNumber];
+            break;
+        case "I": return SHAPE_I[nextNumber];
+            break;
+        case "T": return SHAPE_T[nextNumber];
+            break;
+        case "L": return SHAPE_L[nextNumber];
+            break;
+        case "J": return SHAPE_J[nextNumber];
+            break;
     }
+    
 }
 
 function checkTurnCollision(shape, row, column) {
@@ -195,8 +204,14 @@ function checkTurnCollision(shape, row, column) {
     return false;
 }
 
+function playTurnSound() {
+    const turnSound = new Audio(TURN_SOUND);
+    turnSound.play();
+}
+
 function turnShape(shape) {
     if(shape.classList.contains("O")) {
+        playTurnSound();
         return;
     }
     const nextShape = getNextShape(shape);
@@ -230,6 +245,7 @@ function turnShape(shape) {
         const currentShape = document.querySelector(".currentShape");
         currentShape.style.gridRowStart = nextRow;
         currentShape.style.gridColumnStart = nextColumn;
+        playTurnSound();
     }
 }
 
@@ -343,6 +359,11 @@ function getBackgroundBlocks(currentShape) {
     return backgroundBlocks;
 }
 
+function playStaticSound() {
+    const sound = new Audio(MAKE_STATIC_SOUND);
+    sound.play();
+}
+
 //function to turn current piece into static background blocks
 
 function makeStatic(currentShape) {
@@ -351,8 +372,14 @@ function makeStatic(currentShape) {
     for(x of backgroundBlocks) {
         x.classList.add("staticBlock", blockColor);
     }
+    playStaticSound();
     currentShape.remove();
     spawnNextShape();
+}
+
+function playRowClear() {
+    const sound = new Audio(ROW_CLEAR_SOUND);
+    sound.play();
 }
 
 //Functions to remove an entire row and check if a row is full of static blocks TODO: add function to realign remaining rows
@@ -363,6 +390,7 @@ function removeRow(number) {
         currentBlock.classList.remove(getBlockColor(currentBlock));
         currentBlock.classList.remove("staticBlock");
     }
+    playRowClear();
 }
 
 function moveStaticBlockDown(block) {

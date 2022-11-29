@@ -4,12 +4,38 @@
         <meta charset="UTF-8">
         <title>Tetris</title>
         <link rel="stylesheet" href="./style.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Press+Start+2P">
         <script src="./const.js" defer></script>
         <script src="./app.js" defer></script>
     </head>
     <body>
         <main>
-            <div id="game"></div>
+            <div id="titleWrapper">
+                <div id="titleBox" class="siteElement">
+                    <h1>The TETRIS<sup>®</sup> Experience</h1>
+                    <p>by Kristian Huber</p>
+                </div>
+            </div>
+            <div id="leftWindow" class="siteElement">
+                <h2>Controls</h2>
+                <ul>
+                    <li>a, left - move piece left</li>
+                    <li>d, right - move piece right</li>
+                    <li>s, down - move piece down</li>
+                    <li>space - turn piece</li>
+                </ul>
+            </div>
+            <div id="gameWrapper">
+                <div id="displayWrapper">
+                    <div id="levelDisplay" class="siteElement">LEVEL 100</div>
+                    <div id="scoreDisplay" class="siteElement">SCORE: 420</div>
+                </div>
+                <div id="game"></div>
+            </div>
+            <div id="rightWindow" class="siteElement">
+                <h2>Sample Header</h2>
+                <p>Here could be awesome text if i knew what to write lorem ipsum my brotha</p>
+            </div>
         </main>
     </body>
 </html>
