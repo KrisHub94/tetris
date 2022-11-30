@@ -2,6 +2,9 @@ const GAMEBOARD = document.querySelector("#game");
 const GAME_ROWS = 20;
 const GAME_COLUMNS = 10;
 
+const NEXT_PIECE_DISPLAY = document.querySelector("#nextPiece");
+const STORED_PIECE_DISPLAY = document.querySelector("#storedPiece");
+
 const TURN_SOUND = "./sounds/turn-sound.mp3";
 const ROW_CLEAR_SOUND = "./sounds/row-clear-sound.mp3";
 const GAME_OVER_SOUND = "./sounds/you-lose-sound.mp3";
@@ -256,5 +259,21 @@ function createBoard() {
         }
     }
 }
+
+function createDisplay(element, number) {
+    element.style = `grid: ${"1fr ".repeat(number)} / ${"1fr ".repeat(number)}`;
+    for(let i = 1; i <= (number); i++) {
+        for(let j = 1; j <= number; j++) {
+            const gridItem = document.createElement("div");
+            gridItem.classList.add("displayGridItem");
+            gridItem.style.gridColumnStart = i;
+            gridItem.style.gridRowStart = j;
+            element.appendChild(gridItem);
+        }
+    }
+}
+
 createBoard();
 const BOARD_BLOCKS = document.querySelectorAll(".gridItem");
+createDisplay(NEXT_PIECE_DISPLAY, 6);
+createDisplay(STORED_PIECE_DISPLAY, 6);

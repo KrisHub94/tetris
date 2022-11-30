@@ -147,6 +147,37 @@ function spawnRandomShape() {
     createShape(SHAPES[randomNumber][0]);
 }
 
+function displayNextPiece() {
+    if(document.querySelector(".displayedNextPiece")) {
+        document.querySelector(".displayedNextPiece").remove();
+    }
+    const nextShape = SHAPES[currentQueue[0]][0];
+    const nextPiece = document.createElement("div");
+    let rowPlacement = 5 - nextShape.rowSpan, colPlacement
+    if(nextShape.colSpan > 2) {
+        colPlacement = 2;
+    }
+    else {
+        colPlacement = 3;
+    }
+    nextPiece.classList.add("displayedNextPiece");
+    nextPiece.style = `grid: ${"1fr ".repeat(nextShape.rowSpan)} / ${"1fr ".repeat(nextShape.colSpan)};
+    grid-area: ${rowPlacement}/ ${colPlacement}/ span ${nextShape.rowSpan}/ span ${nextShape.colSpan}`;
+    for(let i = 1; i <= (nextShape.colSpan); i++) {
+        for(let j = 1; j <= nextShape.rowSpan; j++) {
+            const gridItem = document.createElement("div");
+            gridItem.classList.add("displayGridItem", `${nextShape.color}`);
+            gridItem.style.gridColumnStart = i;
+            gridItem.style.gridRowStart = j;
+            if(checkEmptyBlock(j, i, nextShape)) {
+                gridItem.classList.add("emptyBlock");
+            }
+            nextPiece.appendChild(gridItem);
+        }
+    }
+    NEXT_PIECE_DISPLAY.appendChild(nextPiece);
+}
+
 function spawnNextShape() {
     createShape(SHAPES[currentQueue[0]][0]);
     currentQueue.splice(0, 1);
@@ -154,6 +185,7 @@ function spawnNextShape() {
         currentQueue = nextQueue;
         nextQueue = getRandomQueue();
     }
+    displayNextPiece();
 }
 
 function getNextShape(currentShape) {
