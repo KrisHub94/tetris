@@ -2,8 +2,12 @@ const GAMEBOARD = document.querySelector("#game");
 const GAME_ROWS = 20;
 const GAME_COLUMNS = 10;
 
+const START_SCREEN = document.querySelector("#startScreen");
 const NEXT_PIECE_DISPLAY = document.querySelector("#nextPiece");
 const STORED_PIECE_DISPLAY = document.querySelector("#storedPiece");
+const SCORE_DISPLAY = document.querySelector("#score");
+const LEVEL_DISPLAY = document.querySelector("#levelDisplay");
+const LINES_CLEAR_DISPLAY = document.querySelector("#linesCleared")
 
 const TURN_SOUND = "./sounds/turn-sound.mp3";
 const ROW_CLEAR_SOUND = "./sounds/row-clear-sound.mp3";

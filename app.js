@@ -496,6 +496,8 @@ function removeRow(number) {
         currentBlock.classList.remove("staticBlock");
     }
     playRowClear();
+    linesCleared++;
+    clearCount++;
 }
 
 function moveStaticBlockDown(block) {
@@ -520,6 +522,14 @@ function realignRows(lowestRow) {
     }
 }
 
+function updateStats() {
+    let addedScore = 50*clearCount*level;
+    score += addedScore;
+    clearCount = 0;
+    SCORE_DISPLAY.innerText = score;
+    LINES_CLEAR_DISPLAY.innerText = linesCleared;
+}
+
 function checkRows() {
     for(let i = GAME_ROWS; i >= 1; i--) {
         let isRowFull = true;
@@ -540,6 +550,9 @@ function checkRows() {
         else {
             continue;
         }
+    }
+    if(clearCount > 0) {
+        updateStats();
     }
 }
 
@@ -590,12 +603,24 @@ function update() {
     moveDown(shape);
 }
 
-const mainInterval = setInterval(update, 1000);
 let currentQueue = getRandomQueue();
 let nextQueue = getRandomQueue();
 let hasUsedStore = false;
+let score = 0;
+let linesCleared = 0;
+let clearCount = 0;
+let level = 1;
+let levelUpLines = 10;
 function main() {
+    console.log("test");
+    const mainInterval = setInterval(update, 1000);
     spawnNextShape();
     addControls();
 }
-main();
+
+window.addEventListener("keydown", function() {    
+        if(event.key === "Enter") {
+            START_SCREEN.remove();
+            main();
+        }
+    })
