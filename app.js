@@ -612,15 +612,16 @@ let clearCount = 0;
 let level = 1;
 let levelUpLines = 10;
 function main() {
-    console.log("test");
+    window.removeEventListener("keydown", startGame);
     const mainInterval = setInterval(update, 1000);
     spawnNextShape();
     addControls();
 }
 
-window.addEventListener("keydown", function() {    
-        if(event.key === "Enter") {
-            START_SCREEN.remove();
-            main();
-        }
-    })
+function startGame() {
+    if(event.key === "Enter") {
+        START_SCREEN.remove();
+        main();
+    }
+}
+window.addEventListener("keydown", startGame);
