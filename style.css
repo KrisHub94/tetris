@@ -168,3 +168,10 @@ h1, h2 {
     height: auto;
     grid-gap: 1px;
 }
+
+.displayedStoredPiece {
+    display: grid;
+    width: fit-content;
+    height: auto;
+    grid-gap: 1px;
+}

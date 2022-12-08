@@ -26,13 +26,22 @@ function getBlockColor(block) {
     }
 }
 
-//Function to create new piece
-
-function getFirstShape(shape) {
-    for (item of SHAPES) {
-        if(item = shape) {
-            return item[0];
-        }
+function getFirstShape(letter) {
+    switch (letter) {
+        case "S": return SHAPE_S[0];
+            break;
+        case "Z": return SHAPE_Z[0];
+            break;
+        case "I": return SHAPE_I[0];
+            break;
+        case "T": return SHAPE_T[0];
+            break;
+        case "L": return SHAPE_L[0];
+            break;
+        case "J": return SHAPE_J[0];
+            break;
+        case "O": return SHAPE_O[0];
+            break;
     }
 }
 
@@ -208,6 +217,70 @@ function getNextShape(currentShape) {
     
 }
 
+function putInStored(shape) {
+    const storedPiece = document.createElement("div");
+    let rowPlacement = 5 - shape.rowSpan, colPlacement
+    if(shape.colSpan > 2) {
+        colPlacement = 2;
+    }
+    else {
+        colPlacement = 3;
+    }
+    storedPiece.classList.add(shape.shape);
+    storedPiece.classList.add("displayedStoredPiece");
+    storedPiece.style = `grid: ${"1fr ".repeat(shape.rowSpan)} / ${"1fr ".repeat(shape.colSpan)};
+    grid-area: ${rowPlacement}/ ${colPlacement}/ span ${shape.rowSpan}/ span ${shape.colSpan}`;
+    for(let i = 1; i <= (shape.colSpan); i++) {
+        for(let j = 1; j <= shape.rowSpan; j++) {
+            const gridItem = document.createElement("div");
+            gridItem.classList.add("displayGridItem", `${shape.color}`);
+            gridItem.style.gridColumnStart = i;
+            gridItem.style.gridRowStart = j;
+            if(checkEmptyBlock(j, i, shape)) {
+                gridItem.classList.add("emptyBlock");
+            }
+            storedPiece.appendChild(gridItem);
+        }
+    }
+    STORED_PIECE_DISPLAY.appendChild(storedPiece);
+}
+
+function appendStored() {
+    const displayedPiece = document.querySelector(".displayedStoredPiece");
+    displayedPiece.style.gridRowStart = 1;
+    if(displayedPiece.style.gridColumnEnd === "span 2") {
+        displayedPiece.style.gridColumnStart = 5;
+    }
+    else {
+        displayedPiece.style.gridColumnStart = 4;
+    }
+    for(block of displayedPiece.childNodes) {
+        block.classList.remove("displayGridItem");
+        block.classList.add("gridItem");
+    }
+    GAMEBOARD.appendChild(STORED_PIECE_DISPLAY.removeChild(displayedPiece));
+    displayedPiece.classList.remove("displayedStoredPiece");
+    displayedPiece.classList.add("currentShape");
+}
+
+function storePiece(currentShape) {
+    if(hasUsedStore) {
+        return;
+    }
+    const shapeLetter = currentShape.classList[0][0];
+    const storedShape = getFirstShape(shapeLetter);
+    currentShape.remove();
+    if(document.querySelector(".displayedStoredPiece")) {
+        appendStored();
+        putInStored(storedShape);
+    }
+    else {
+        putInStored(storedShape);
+        spawnNextShape();
+    }
+    hasUsedStore = true;
+}
+
 function checkTurnCollision(shape, row, column) {
     const endRow = row + (shape.rowSpan - 1);
     const endColumn = column + (shape.colSpan - 1);
@@ -267,7 +340,6 @@ function turnShape(shape) {
     else {
         nextColumn = currentColumn + nextShape.turnRowColumn[1];
     }
-    let turnIndex = Number(shape.classList[0][1] + 1);
     if(checkTurnCollision(nextShape, nextRow, nextColumn)) {
         return;
     }
@@ -406,6 +478,7 @@ function makeStatic(currentShape) {
     }
     playStaticSound();
     currentShape.remove();
+    hasUsedStore = false;
     spawnNextShape();
 }
 
@@ -504,6 +577,8 @@ function addControls(){
             break;
         case " ": turnShape(currentShape);
             break;
+        case "q": storePiece(currentShape);
+            break;
     }
 })
 };
@@ -518,6 +593,7 @@ function update() {
 const mainInterval = setInterval(update, 1000);
 let currentQueue = getRandomQueue();
 let nextQueue = getRandomQueue();
+let hasUsedStore = false;
 function main() {
     spawnNextShape();
     addControls();
