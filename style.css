@@ -91,6 +91,12 @@ h1, h2 {
     top: 40%;
 }
 
+#loseScreen {
+    position: absolute;
+    left: 37%;
+    top: 40%;
+}
+
 .gridItem {
     display: block;
     height: 30px;

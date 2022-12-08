@@ -7,7 +7,8 @@ const NEXT_PIECE_DISPLAY = document.querySelector("#nextPiece");
 const STORED_PIECE_DISPLAY = document.querySelector("#storedPiece");
 const SCORE_DISPLAY = document.querySelector("#score");
 const LEVEL_DISPLAY = document.querySelector("#levelDisplay");
-const LINES_CLEAR_DISPLAY = document.querySelector("#linesCleared")
+const LINES_CLEAR_DISPLAY = document.querySelector("#linesCleared");
+const LOSE_SCREEN = document.querySelector("#loseScreen");
 
 const TURN_SOUND = "./sounds/turn-sound.mp3";
 const ROW_CLEAR_SOUND = "./sounds/row-clear-sound.mp3";

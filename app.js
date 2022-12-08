@@ -101,13 +101,44 @@ function checkLoseCondition(currentShape, colPlacement) {
     }
     for(block of checkedBlocks) {
         if(block.classList.contains("staticBlock")) {
-            playGameOverSound();
-            alert("YOU LOSE");
+           return true;
         }
         else {
             continue;
         }
     }
+}
+
+function restartGame() {
+    if(event.key === "Enter") {
+        LOSE_SCREEN.style.visibility = "hidden";
+        for(let j = 1; j <= GAME_ROWS; j++) {
+            for(let i = 1; i <= GAME_COLUMNS; i++) {
+                const currentBlock = getBlockElement(j, i);
+                currentBlock.classList.remove(getBlockColor(currentBlock));
+                currentBlock.classList.remove("staticBlock");
+            }
+        }
+        currentQueue = getRandomQueue();
+        nextQueue = getRandomQueue();
+        score = 0;
+        linesCleared = 0;
+        level = 1;
+        levelUpLines = 5;
+        LEVEL_DISPLAY.innerText = `LEVEL 1`;
+        document.querySelector(".displayedStoredPiece").remove();
+        updateStats();
+        main();
+        window.removeEventListener("keydown", restartGame);
+    }
+}
+
+function endGame() {
+    document.removeEventListener("keydown", checkInputs);
+    playGameOverSound();
+    clearInterval(mainInterval);
+    LOSE_SCREEN.style.visibility = "visible";
+    window.addEventListener("keydown", restartGame);
 }
 
 function createShape(currentShape) {
@@ -121,7 +152,10 @@ function createShape(currentShape) {
     else {
         colPlacement = "4";
     }
-    checkLoseCondition(currentShape, Number(colPlacement));
+    if(checkLoseCondition(currentShape, Number(colPlacement))) {
+        endGame();
+        return;
+    };
     shapeElement.style = `grid: ${"1fr ".repeat(currentShape.rowSpan)} / ${"1fr ".repeat(currentShape.colSpan)};
     grid-area: 1/ ${colPlacement}/ span ${currentShape.rowSpan}/ span ${currentShape.colSpan}`;
     for(let i = 1; i <= (currentShape.colSpan); i++) {
@@ -575,33 +609,35 @@ function moveDown(currentShape) {
     }
 }
 
+function checkInputs() {
+    const currentShape = document.querySelector(".currentShape");
+switch(event.key) {
+    case "d":  
+    case "ArrowRight":
+        if(!checkAllCollisionRight(currentShape)) {
+        currentShape.style.gridColumnStart++;
+        }
+        break;
+    case "s":
+    case "ArrowDown":
+        moveDown(currentShape);
+        break;
+    case "a":
+    case "ArrowLeft":
+        if(!checkAllCollisionLeft(currentShape)) {
+        currentShape.style.gridColumnStart--;
+        }
+        break;
+    case " ": turnShape(currentShape);
+        break;
+    case "q": storePiece(currentShape);
+        break;
+}
+}
+
 function addControls(){
-    document.addEventListener("keydown", function() {
-        const currentShape = document.querySelector(".currentShape");
-    switch(event.key) {
-        case "d":  
-        case "ArrowRight":
-            if(!checkAllCollisionRight(currentShape)) {
-            currentShape.style.gridColumnStart++;
-            }
-            break;
-        case "s":
-        case "ArrowDown":
-            moveDown(currentShape);
-            break;
-        case "a":
-        case "ArrowLeft":
-            if(!checkAllCollisionLeft(currentShape)) {
-            currentShape.style.gridColumnStart--;
-            }
-            break;
-        case " ": turnShape(currentShape);
-            break;
-        case "q": storePiece(currentShape);
-            break;
-    }
-})
-};
+    document.addEventListener("keydown", checkInputs);
+}
 
 //Update function which moves piece down and main function
 
