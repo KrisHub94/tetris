@@ -528,6 +528,13 @@ function updateStats() {
     clearCount = 0;
     SCORE_DISPLAY.innerText = score;
     LINES_CLEAR_DISPLAY.innerText = linesCleared;
+    if(linesCleared >= levelUpLines) {
+        level++
+        LEVEL_DISPLAY.innerText = `LEVEL ${level}`;
+        levelUpLines += 10;
+        clearInterval(mainInterval);
+        mainInterval = setInterval(update, 1000/(level - 0.5));
+    }
 }
 
 function checkRows() {
@@ -610,10 +617,11 @@ let score = 0;
 let linesCleared = 0;
 let clearCount = 0;
 let level = 1;
-let levelUpLines = 10;
+let levelUpLines = 5;
+let mainInterval;
 function main() {
     window.removeEventListener("keydown", startGame);
-    const mainInterval = setInterval(update, 1000);
+    mainInterval = setInterval(update, 1000);
     spawnNextShape();
     addControls();
 }
