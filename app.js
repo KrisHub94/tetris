@@ -8,13 +8,14 @@ function getGridColumn(block) {
     return Number(getComputedStyle(block).gridColumnStart);
 }
 
-function getBlockElement(row, col) {
-    for(block of BOARD_BLOCKS){
+function getBackgroundBlockElement(row, col) {
+    for(const block of BOARD_BLOCKS){
         if(getGridRow(block) === row &&
         getGridColumn(block) === col){
             return block;
         }
     }
+    return null;
 }
 
 function getBlockColor(block) {
@@ -47,31 +48,17 @@ function getFirstShape(letter) {
 
 //Function to check if a block needs to be empty upon creation
 
-function checkEmptyBlock(row, column, currentShape) {
-    if(currentShape.hasOwnProperty("emptyBlocks")) {
-        for(item of currentShape.emptyBlocks) {
-            if(item[0] === row && item[1] === column) {
-                return true;
-            }
-            else {
-                continue;
-            }
-        }
-    }
-    else {
+function isEmptyBlock(row, column, currentShape) {
+    if(!currentShape.hasOwnProperty("emptyBlocks")) {
         return false;
     }
-}
 
-function compareWithEmptyBlocks(row, column, currentShape) {
-    for(item of currentShape.emptyBlocks) {
+    for(const item of currentShape.emptyBlocks) {
         if(item[0] === row && item[1] === column) {
             return true;
         }
-        else {
-            continue;
-        }
     }
+
     return false;
 }
 
@@ -90,23 +77,19 @@ function checkLoseCondition(currentShape, colPlacement) {
     const modifier = colPlacement - 1;
     for(let i = 1; i <= rowEnd; i++) {
         for(let j = colPlacement; j <= colEnd; j++) {
-            if(compareWithEmptyBlocks(i, j - modifier, currentShape)) {
+            if(isEmptyBlock(i, j - modifier, currentShape)) {
                 continue;
             }
-            else {
-                const block = getBlockElement(i, j);
-                checkedBlocks.push(block);
-            }
+            const block = getBackgroundBlockElement(i, j);
+            checkedBlocks.push(block);
         }
     }
-    for(block of checkedBlocks) {
+    for(const block of checkedBlocks) {
         if(block.classList.contains("staticBlock")) {
            return true;
         }
-        else {
-            continue;
-        }
     }
+    return false;
 }
 
 function restartGame() {
@@ -114,7 +97,7 @@ function restartGame() {
         LOSE_SCREEN.style.visibility = "hidden";
         for(let j = 1; j <= GAME_ROWS; j++) {
             for(let i = 1; i <= GAME_COLUMNS; i++) {
-                const currentBlock = getBlockElement(j, i);
+                const currentBlock = getBackgroundBlockElement(j, i);
                 currentBlock.classList.remove(getBlockColor(currentBlock));
                 currentBlock.classList.remove("staticBlock");
             }
@@ -143,8 +126,7 @@ function endGame() {
 
 function createShape(currentShape) {
     const shapeElement = document.createElement("div");
-    shapeElement.classList.add(currentShape.shape);
-    shapeElement.classList.add("currentShape");
+    shapeElement.classList.add(currentShape.shape, "currentShape");
     let colPlacement;
     if(currentShape.colSpan < 3) {
         colPlacement = "5";
@@ -155,7 +137,7 @@ function createShape(currentShape) {
     if(checkLoseCondition(currentShape, Number(colPlacement))) {
         endGame();
         return;
-    };
+    }
     shapeElement.style = `grid: ${"1fr ".repeat(currentShape.rowSpan)} / ${"1fr ".repeat(currentShape.colSpan)};
     grid-area: 1/ ${colPlacement}/ span ${currentShape.rowSpan}/ span ${currentShape.colSpan}`;
     for(let i = 1; i <= (currentShape.colSpan); i++) {
@@ -164,7 +146,7 @@ function createShape(currentShape) {
             gridItem.classList.add("gridItem", `${currentShape.color}`);
             gridItem.style.gridColumnStart = i;
             gridItem.style.gridRowStart = j;
-            if(checkEmptyBlock(j, i, currentShape)) {
+            if(isEmptyBlock(j, i, currentShape)) {
                 gridItem.classList.add("emptyBlock");
             }
             shapeElement.appendChild(gridItem);
@@ -185,15 +167,12 @@ function getRandomQueue() {
     return shuffledIndices;
 }
 
-function spawnRandomShape() {
-    const randomNumber = Math.floor(Math.random() * SHAPES.length);
-    createShape(SHAPES[randomNumber][0]);
-}
-
 function displayNextPiece() {
-    if(document.querySelector(".displayedNextPiece")) {
-        document.querySelector(".displayedNextPiece").remove();
+    const displayedNextPiece = document.querySelector(".displayedNextPiece");
+    if(displayedNextPiece) {
+        displayedNextPiece.remove();
     }
+
     const nextShape = SHAPES[currentQueue[0]][0];
     const nextPiece = document.createElement("div");
     let rowPlacement = 5 - nextShape.rowSpan, colPlacement
@@ -212,7 +191,7 @@ function displayNextPiece() {
             gridItem.classList.add("displayGridItem", `${nextShape.color}`);
             gridItem.style.gridColumnStart = i;
             gridItem.style.gridRowStart = j;
-            if(checkEmptyBlock(j, i, nextShape)) {
+            if(isEmptyBlock(j, i, nextShape)) {
                 gridItem.classList.add("emptyBlock");
             }
             nextPiece.appendChild(gridItem);
@@ -222,8 +201,11 @@ function displayNextPiece() {
 }
 
 function spawnNextShape() {
+    // NOTE: These two lines are coupled,
+    // so it would make sense to group them into a function
     createShape(SHAPES[currentQueue[0]][0]);
     currentQueue.splice(0, 1);
+
     if(currentQueue.length === 0) {
         currentQueue = nextQueue;
         nextQueue = getRandomQueue();
@@ -270,7 +252,7 @@ function putInStored(shape) {
             gridItem.classList.add("displayGridItem", `${shape.color}`);
             gridItem.style.gridColumnStart = i;
             gridItem.style.gridRowStart = j;
-            if(checkEmptyBlock(j, i, shape)) {
+            if(isEmptyBlock(j, i, shape)) {
                 gridItem.classList.add("emptyBlock");
             }
             storedPiece.appendChild(gridItem);
@@ -279,7 +261,7 @@ function putInStored(shape) {
     STORED_PIECE_DISPLAY.appendChild(storedPiece);
 }
 
-function appendStored() {
+function applyStored() {
     const displayedPiece = document.querySelector(".displayedStoredPiece");
     displayedPiece.style.gridRowStart = 1;
     if(displayedPiece.style.gridColumnEnd === "span 2") {
@@ -305,7 +287,7 @@ function storePiece(currentShape) {
     const storedShape = getFirstShape(shapeLetter);
     currentShape.remove();
     if(document.querySelector(".displayedStoredPiece")) {
-        appendStored();
+        applyStored();
         putInStored(storedShape);
     }
     else {
@@ -323,11 +305,11 @@ function checkTurnCollision(shape, row, column) {
     let checkedBlocks = [];
     for(let i = row; i <= endRow; i++) {
         for(let j = column; j <= endColumn; j++) {
-            if(compareWithEmptyBlocks(i - rowModifier, j - colModifier, shape)) {
+            if(isEmptyBlock(i - rowModifier, j - colModifier, shape)) {
                 continue;
             }
             else {
-                const block = getBlockElement(i, j);
+                const block = getBackgroundBlockElement(i, j);
                 checkedBlocks.push(block);
             }
         }
@@ -400,7 +382,7 @@ function checkCollisionDown(block, currentShape) {
             return true;
         }
         else {
-            const lowerBlock = getBlockElement(blockRow + 1, blockColumn);
+            const lowerBlock = getBackgroundBlockElement(blockRow + 1, blockColumn);
             return lowerBlock.classList.contains("staticBlock");
         }    
     }   
@@ -424,28 +406,25 @@ function checkCollisionRight(block, currentShape) {
     if(block.classList.contains("emptyBlock")) {
         return false;
     }
-    else {
-        const blockRow = Number(currentShape.style.gridRowStart) + (Number(block.style.gridRowStart) - 1);
-        const blockColumn = Number(currentShape.style.gridColumnStart) + (Number(block.style.gridColumnStart) - 1);
-        if(blockColumn === GAME_COLUMNS) {
-            return true;
-        }
-        else {
-            const rightBlock = getBlockElement(blockRow, blockColumn + 1);
-            return rightBlock.classList.contains("staticBlock");
-        }    
+
+    const blockRow = Number(currentShape.style.gridRowStart) + (Number(block.style.gridRowStart) - 1);
+    const blockColumn = Number(currentShape.style.gridColumnStart) + (Number(block.style.gridColumnStart) - 1);
+    if(blockColumn === GAME_COLUMNS) {
+        return true;
     }
+    else {
+        const rightBlock = getBackgroundBlockElement(blockRow, blockColumn + 1);
+        return rightBlock.classList.contains("staticBlock");
+    }    
 }
 
 function checkAllCollisionRight(currentShape) {
-    for(block of currentShape.childNodes) {
-        if(!block.classList.contains("emptyBlock")) {
-            if(checkCollisionRight(block, currentShape)) {
-                return true;
-            }
-            else {
-                continue;
-            }
+    for(const block of currentShape.children) {
+        if(
+            !block.classList.contains("emptyBlock") &&
+            checkCollisionRight(block, currentShape)
+        ) {
+            return true;
         }
     }
     return false;
@@ -462,7 +441,7 @@ function checkCollisionLeft(block, currentShape) {
             return true;
         }
         else {
-            const rightBlock = getBlockElement(blockRow, blockColumn - 1);
+            const rightBlock = getBackgroundBlockElement(blockRow, blockColumn - 1);
             return rightBlock.classList.contains("staticBlock");
         }    
     }
@@ -492,14 +471,14 @@ function getBackgroundBlocks(currentShape) {
         }
         const blockRow = Number(currentShape.style.gridRowStart) + (Number(block.style.gridRowStart) - 1);
         const blockColumn = Number(currentShape.style.gridColumnStart) + (Number(block.style.gridColumnStart) - 1);
-        backgroundBlocks.push(getBlockElement(blockRow, blockColumn));
+        backgroundBlocks.push(getBackgroundBlockElement(blockRow, blockColumn));
     }
     return backgroundBlocks;
 }
 
 function playStaticSound() {
-    const sound = new Audio(MAKE_STATIC_SOUND);
-    sound.play();
+    staticSound.currentTime = 0;
+    staticSound.play();
 }
 
 //function to turn current piece into static background blocks
@@ -525,17 +504,17 @@ function playRowClear() {
 
 function removeRow(number) {
     for(let i = 1; i <= GAME_COLUMNS; i++) {
-        const currentBlock = getBlockElement(number, i);
+        const currentBlock = getBackgroundBlockElement(number, i);
         currentBlock.classList.remove(getBlockColor(currentBlock));
         currentBlock.classList.remove("staticBlock");
     }
     playRowClear();
     linesCleared++;
-    clearCount++;
+    linesClearedCombo++;
 }
 
 function moveStaticBlockDown(block) {
-    const lowerBlock = getBlockElement(getGridRow(block) + 1, getGridColumn(block));
+    const lowerBlock = getBackgroundBlockElement(getGridRow(block) + 1, getGridColumn(block));
     const blockColor = getBlockColor(block);
     block.classList.remove("staticBlock", blockColor);
     lowerBlock.classList.add("staticBlock", blockColor);
@@ -543,7 +522,7 @@ function moveStaticBlockDown(block) {
 
 function moveRowDown(row) {
     for(let j = 1; j <= GAME_COLUMNS; j++) {
-        const currentBlock = getBlockElement(row, j);
+        const currentBlock = getBackgroundBlockElement(row, j);
         if(currentBlock.classList.contains("staticBlock")) {
             moveStaticBlockDown(currentBlock);
         }
@@ -557,9 +536,9 @@ function realignRows(lowestRow) {
 }
 
 function updateStats() {
-    let addedScore = 50*clearCount*level;
+    let addedScore = 50*linesClearedCombo*level;
     score += addedScore;
-    clearCount = 0;
+    linesClearedCombo = 0;
     SCORE_DISPLAY.innerText = score;
     LINES_CLEAR_DISPLAY.innerText = linesCleared;
     if(linesCleared >= levelUpLines) {
@@ -575,14 +554,12 @@ function checkRows() {
     for(let i = GAME_ROWS; i >= 1; i--) {
         let isRowFull = true;
         for(let j = 1; j <= GAME_COLUMNS; j++) {
-            const checkedBlock = getBlockElement(i, j);
-            if(checkedBlock.classList.contains("staticBlock")) {
-                continue;
-            }
-            else {
+            const checkedBlock = getBackgroundBlockElement(i, j);
+            if(!checkedBlock.classList.contains("staticBlock")) {
                 isRowFull = false;
             }
         }
+
         if(isRowFull) {
             removeRow(i);
             realignRows(i - 1);
@@ -592,7 +569,7 @@ function checkRows() {
             continue;
         }
     }
-    if(clearCount > 0) {
+    if(linesClearedCombo > 0) {
         updateStats();
     }
 }
@@ -611,28 +588,28 @@ function moveDown(currentShape) {
 
 function checkInputs() {
     const currentShape = document.querySelector(".currentShape");
-switch(event.key) {
-    case "d":  
-    case "ArrowRight":
-        if(!checkAllCollisionRight(currentShape)) {
-        currentShape.style.gridColumnStart++;
-        }
-        break;
-    case "s":
-    case "ArrowDown":
-        moveDown(currentShape);
-        break;
-    case "a":
-    case "ArrowLeft":
-        if(!checkAllCollisionLeft(currentShape)) {
-        currentShape.style.gridColumnStart--;
-        }
-        break;
-    case " ": turnShape(currentShape);
-        break;
-    case "q": storePiece(currentShape);
-        break;
-}
+    switch(event.key) {
+        case "d":  
+        case "ArrowRight":
+            if(!checkAllCollisionRight(currentShape)) {
+                currentShape.style.gridColumnStart++;
+            }
+            break;
+        case "s":
+        case "ArrowDown":
+            moveDown(currentShape);
+            break;
+        case "a":
+        case "ArrowLeft":
+            if(!checkAllCollisionLeft(currentShape)) {
+            currentShape.style.gridColumnStart--;
+            }
+            break;
+        case " ": turnShape(currentShape);
+            break;
+        case "q": storePiece(currentShape);
+            break;
+    }
 }
 
 function addControls(){
@@ -651,10 +628,11 @@ let nextQueue = getRandomQueue();
 let hasUsedStore = false;
 let score = 0;
 let linesCleared = 0;
-let clearCount = 0;
+let linesClearedCombo = 0;
 let level = 1;
 let levelUpLines = 5;
 let mainInterval;
+
 function main() {
     window.removeEventListener("keydown", startGame);
     mainInterval = setInterval(update, 1000);
@@ -669,3 +647,8 @@ function startGame() {
     }
 }
 window.addEventListener("keydown", startGame);
+
+createBoard();
+const BOARD_BLOCKS = document.querySelectorAll(".gridItem");
+createDisplay(NEXT_PIECE_DISPLAY, 6);
+createDisplay(STORED_PIECE_DISPLAY, 6);

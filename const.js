@@ -254,7 +254,7 @@ const SHAPES = [SHAPE_O, SHAPE_S, SHAPE_Z, SHAPE_I, SHAPE_T, SHAPE_L, SHAPE_J];
 
 function createBoard() {
     GAMEBOARD.style = `grid: ${"1fr ".repeat(GAME_ROWS)} / ${"1fr ".repeat(GAME_COLUMNS)}`;
-    for(let i = 1; i <= (GAME_COLUMNS); i++) {
+    for(let i = 1; i <= GAME_COLUMNS; i++) {
         for(let j = 1; j <= GAME_ROWS; j++) {
             const gridItem = document.createElement("div");
             gridItem.classList.add("gridItem");
@@ -265,10 +265,10 @@ function createBoard() {
     }
 }
 
-function createDisplay(element, number) {
-    element.style = `grid: ${"1fr ".repeat(number)} / ${"1fr ".repeat(number)}`;
-    for(let i = 1; i <= (number); i++) {
-        for(let j = 1; j <= number; j++) {
+function createDisplay(element, size) {
+    element.style = `grid: ${"1fr ".repeat(size)} / ${"1fr ".repeat(size)}`;
+    for(let i = 1; i <= size; i++) {
+        for(let j = 1; j <= size; j++) {
             const gridItem = document.createElement("div");
             gridItem.classList.add("displayGridItem");
             gridItem.style.gridColumnStart = i;
@@ -278,7 +278,4 @@ function createDisplay(element, number) {
     }
 }
 
-createBoard();
-const BOARD_BLOCKS = document.querySelectorAll(".gridItem");
-createDisplay(NEXT_PIECE_DISPLAY, 6);
-createDisplay(STORED_PIECE_DISPLAY, 6);
+const staticSound = new Audio(MAKE_STATIC_SOUND);
